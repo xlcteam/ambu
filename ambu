@@ -29,9 +29,9 @@ cat tags | grep -v '^!' | grep 'f$'| grep -o '/\^.*\$\/' | sed 's/\/^//' | sed '
 
 cat $PROJECT".ino" >> $BUILDDIR/$PROJECTNAME
 
-for i in $CURRENTDIR/"*.ino"
+for i in `find $CURRENTDIR -name "*.ino" -type f`
 do
-    if [[ $i != $PROJECTNAME ]]; then
+    if [[ `basename $i` != $PROJECTNAME ]]; then
         cat $i >> $BUILDDIR/$PROJECTNAME
     fi
 done

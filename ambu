@@ -1,0 +1,45 @@
+#!/bin/bash
+
+MAKEMODE=$1
+CURRENTDIR=`pwd`
+PROJECT=`basename $CURRENTDIR`
+PARENTDIR=`dirname $CURRENTDIR`
+BUILDDIR=$PARENTDIR/".build_"$PROJECT
+PROJECTNAME=$PROJECT".ino"
+
+usage()
+{
+cat << EOF
+usage: $0 [makefile target]
+(see Arduino Makefile for target details)
+EOF
+}
+
+if [ -z "$1" ]; then
+    usage
+    exit 1
+fi
+
+mkdir -p $BUILDDIR
+ctags --language-force=c --exclude=$PROJECTNAME *.ino
+
+# parse tags file and grab all the function headers
+cat tags | grep -v '^!' | grep 'f$'| grep -o '/\^.*\$\/' | sed 's/\/^//' | sed 's/{.*}//' | sed 's/$\//;/' > $BUILDDIR/$PROJECTNAME
+
+cat $PROJECT".ino" >> $BUILDDIR/$PROJECTNAME
+
+for i in $CURRENTDIR/"*.ino"
+do
+    if [[ $i != $PROJECTNAME ]]; then
+        cat $i >> $BUILDDIR/$PROJECTNAME
+    fi
+done
+
+cp $CURRENTDIR/Makefile $BUILDDIR/
+rm tags
+
+pushd $BUILDDIR
+    make $MAKEMODE
+popd
+
+rm -rf $BUILDDIR

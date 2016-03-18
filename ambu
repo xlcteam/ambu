@@ -35,14 +35,20 @@ command -v ctags >/dev/null 2>&1 || {
 ctags --language-force=c --exclude=$PROJECTNAME *.ino
 if ! grep -q "$(printf '_TAG_PROGRAM_NAME\tExuberant Ctags\t//')" tags; then
     echo >&2 "ctags generated output not compatible with ambu."
-    echo >&2 "Please install exuberant-ctags from repos or use this link: http://ctags.sourceforge.net/"
+    echo >&2 -n "Please install exuberant-ctags from repos or use this link:"
+    echo >&2 "http://ctags.sourceforge.net/"
     exit 1
 fi
 
 mkdir -p $BUILDDIR
 
+# Copy h|c|cpp files
+find $CURRENTDIR -regex '.*.\(h\|c\|cpp\)$' -printf "%P\n" |
+    xargs -I{} cp --parents "{}" $BUILDDIR
+
 # parse tags file and grab all the function headers
-cat tags | grep -v '^!' | grep 'f$'| grep -o '/\^.*\$\/' | sed 's/\/^//' | sed 's/{.*}//' | sed 's/$\//;/' > $BUILDDIR/$PROJECTNAME
+cat tags | grep -v '^!' | grep 'f$'| grep -o '/\^.*\$\/' | sed 's/\/^//' |
+    sed 's/{.*}//' | sed 's/$\//;/' > $BUILDDIR/$PROJECTNAME
 
 cat $PROJECT".ino" >> $BUILDDIR/$PROJECTNAME
 

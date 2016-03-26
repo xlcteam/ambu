@@ -7,7 +7,7 @@ PARENTDIR=`dirname $CURRENTDIR`
 BUILDDIR=$PARENTDIR/".build_"$PROJECT
 PROJECTNAME=$PROJECT".ino"
 
-function usage() {
+usage() {
     echo "usage: $0 target [project-dir]"
     echo "  (Note that there exists a special target 'compile' which just compiles"
     echo "   the code, which is what a bare 'make' would do with Arduino Makefile)"
